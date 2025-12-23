@@ -117,7 +117,7 @@ Each tenant operates in **complete isolation** while sharing a common SaaS infra
 └──────────────┘
 
 
-### 5.2 Secure Request Lifecycle
+5.2 Secure Request Lifecycle
 Client Request
      │
      ▼
