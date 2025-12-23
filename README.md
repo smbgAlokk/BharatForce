@@ -115,3 +115,25 @@ Each tenant operates in **complete isolation** while sharing a common SaaS infra
 │ SMTP Service │
 │ (Emails)     │
 └──────────────┘
+
+
+### 5.2 Secure Request Lifecycle
+Client Request
+     │
+     ▼
+JWT Verification
+     │
+Tenant Context Injection
+     │
+Role Authorization
+     │
+Ownership Validation
+     │
+Controller Execution
+     │
+Tenant-Scoped DB Query
+
+
+
+
+
