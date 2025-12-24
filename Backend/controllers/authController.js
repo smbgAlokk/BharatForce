@@ -172,7 +172,8 @@ exports.forgotPassword = async (req, res) => {
 
     // ✅ FIX: Use Production URL
     // If FRONTEND_URL is set (Render), use it. Else fall back to localhost (Dev).
-    const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const frontendBaseUrl = "https://bharatforce-9gsv.onrender.com";
+    console.log("🔥 CRITICAL TEST: URL is forced to:", frontendBaseUrl);
     const cleanBaseUrl = frontendBaseUrl.replace(/\/$/, ""); // Remove trailing slash if exists
 
     const resetURL = `${cleanBaseUrl}/#/reset-password/${resetToken}`;
