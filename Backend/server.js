@@ -31,8 +31,21 @@ console.log("MONGO_URI =", process.env.MONGO_URI);
 connectDB();
 
 const app = express();
+// 1. Trust the Proxy (Critical for secure cookies in production)
+app.set("trust proxy", 1);
+
 // Middleware
-app.use(cors());
+// 2. Configure CORS for Production
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // Local Development
+      process.env.FRONTEND_URL, // Production Frontend (Set this in Render Env Vars)
+    ],
+    credentials: true, // Allow cookies/headers
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
 app.use(express.json());
 
 // 1. MAKE UPLOADS FOLDER PUBLIC
