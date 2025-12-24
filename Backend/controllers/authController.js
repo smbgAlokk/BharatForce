@@ -152,10 +152,6 @@ exports.googleLogin = async (req, res) => {
 // @desc    Forgot Password - Send Email
 // @route   POST /api/auth/forgot-password
 exports.forgotPassword = async (req, res) => {
-  console.log(
-    "🔍 DEBUG: process.env.FRONTEND_URL is:",
-    process.env.FRONTEND_URL
-  );
   try {
     // 1. Find user by email
     const user = await User.findOne({ email: req.body.email });
@@ -169,6 +165,10 @@ exports.forgotPassword = async (req, res) => {
     // (Preserving your existing model method flow)
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
+    console.log(
+      "🔍 DEBUG: process.env.FRONTEND_URL is:",
+      process.env.FRONTEND_URL
+    );
 
     // ✅ FIX: Use Production URL
     // If FRONTEND_URL is set (Render), use it. Else fall back to localhost (Dev).
