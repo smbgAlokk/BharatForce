@@ -1,16 +1,12 @@
 import React, { useState } from "react";
-import {
-  Lock,
-  ArrowRight,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
+import { Lock, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+// ✅ FIX 1: Import your smart API service, NOT raw axios
+import api from "../../services/api";
 
 export const ResetPassword: React.FC = () => {
-  const { token } = useParams<{ token: string }>(); // Get token from URL
+  // ✅ FIX 2: Handle HashRouter token extraction safely
+  const { token: paramToken } = useParams<{ token: string }>();
   const navigate = useNavigate();
 
   const [password, setPassword] = useState("");
@@ -33,18 +29,29 @@ export const ResetPassword: React.FC = () => {
       return;
     }
 
+    // ✅ FIX 3: Get token safely (Fallback for HashRouter issues)
+    // If useParams is empty, try grabbing the last part of the URL manually
+    const urlToken = window.location.hash.split("/").pop();
+    const finalToken = paramToken || urlToken;
+
+    if (!finalToken) {
+      setStatus("error");
+      setMessage("Invalid URL: Missing Reset Token");
+      return;
+    }
+
     setStatus("loading");
     try {
-      // ✅ PATCH request to update password
-      await axios.patch(
-        `http://127.0.0.1:5000/api/auth/reset-password/${token}`,
-        { password }
-      );
+      // ✅ FIX 4: Use 'api.patch' instead of 'axios.patch'
+      // This automatically adds the correct Base URL (Production vs Local)
+      await api.patch(`/auth/reset-password/${finalToken}`, { password });
+
       setStatus("success");
-      // Redirect after 3 seconds
       setTimeout(() => navigate("/login"), 3000);
     } catch (error: any) {
+      console.error("Reset Error:", error);
       setStatus("error");
+      // Handle standard axios error response structure
       setMessage(
         error.response?.data?.message || "Token is invalid or has expired."
       );

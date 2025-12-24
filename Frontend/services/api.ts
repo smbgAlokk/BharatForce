@@ -276,3 +276,5 @@ export const uploadService = {
     return fileUrl;
   },
 };
+
+export default api;
