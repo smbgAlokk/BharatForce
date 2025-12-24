@@ -6,7 +6,7 @@ const {
   Grade,
   CostCenter,
 } = require("../models/OrgModels");
-const User = require("../models/User");
+const User = require("../models/user");
 const sendEmail = require("../Utils/email");
 const crypto = require("crypto");
 const Company = require("../models/company");
