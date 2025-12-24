@@ -25,6 +25,8 @@ const orgRoutes = require("./routes/orgRoutes");
 
 console.log("1. Starting Server Script..."); // Debug Log
 
+console.log("MONGO_URI =", process.env.MONGO_URI);
+
 // Database Connection
 connectDB();
 
@@ -57,7 +59,7 @@ const server = app.listen(PORT, "0.0.0.0", () => {
 // Unhandled Promise Rejection
 process.on("unhandledRejection", (err) => {
   console.log(`Error: ${err.message}`);
-  console.log(`Shutting down the server due to Unhandled Promise Rejection-2`);
+  // console.log(`Shutting down the server due to Unhandled Promise Rejection-2`);
 
   server.close(() => {
     process.exit(1);
