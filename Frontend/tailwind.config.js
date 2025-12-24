@@ -1,0 +1,57 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./index.tsx",
+    "./App.tsx",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./context/**/*.{js,ts,jsx,tsx}",
+    "./services/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        indigo: {
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfd3fe",
+          300: "#93bbfd",
+          400: "#609afa",
+          500: "#4d7cfe",
+          600: "#3A5BA0",
+          700: "#2e4980",
+          800: "#253b66",
+          900: "#1e3a8a",
+          950: "#172554",
+        },
+        amber: {
+          50: "#fdfce7",
+          100: "#fdf6e7",
+          200: "#fceec8",
+          300: "#fde047",
+          400: "#facc15",
+          500: "#e89c3a",
+          600: "#D68B28",
+          700: "#b5721d",
+          800: "#925a18",
+          900: "#784916",
+          950: "#452509",
+        },
+        slate: {
+          50: "#F3F4F6",
+          100: "#eef0f2",
+          200: "#e2e4e8",
+          300: "#cbd5e1",
+          400: "#94a3b8",
+          500: "#7A7A80",
+          600: "#5d5d63",
+          700: "#47474b",
+          800: "#3A3A3C",
+          900: "#3A3A3C",
+          950: "#252526",
+        },
+      },
+    },
+  },
+  plugins: [],
+};
