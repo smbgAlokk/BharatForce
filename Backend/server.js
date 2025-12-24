@@ -29,7 +29,7 @@ app.use(
     origin: [
       "http://localhost:5173", // Local Development (Vite)
       "http://localhost:3000", // Local Development (React Standard)
-      "https://bharatforce-9gsv.onrender.com", // ✅ YOUR LIVE PRODUCTION FRONTEND
+      "https://bharatforce-9gsv.onrender.com", // YOUR LIVE PRODUCTION FRONTEND
       process.env.FRONTEND_URL, // Fallback for Env Var
     ].filter(Boolean), // Removes any undefined/null values
     credentials: true, // Allow cookies/headers
