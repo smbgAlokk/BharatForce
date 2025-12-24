@@ -1,13 +1,35 @@
 import axios from "axios";
 
-// Automatically detect the IP address
-const API_IP = window.location.hostname;
-const API_URL = `http://${API_IP}:5000/api`;
+// ---------------------------------------------------------------------------
+// ✅ ENVIRONMENT AWARE CONFIGURATION
+// ---------------------------------------------------------------------------
 
+// 1. Check for the VITE_API_URL environment variable (Set this in Render)
+const ENV_API_URL = import.meta.env.VITE_API_URL;
+
+let API_URL = "";
+
+if (ENV_API_URL) {
+  // A. PRODUCTION PRIORITY: Use the explicit URL from Render settings
+  API_URL = ENV_API_URL;
+} else if (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+) {
+  // B. LOCAL FALLBACK: If running on your machine, assume standard local ports
+  API_URL = "http://localhost:5000/api";
+} else {
+  // C. SAFETY NET: If on production but forgot to set Env Var, try to guess (or default to live backend)
+  // Since you shared your live backend, we can use it as a default fallback here too.
+  API_URL = "https://bharatforce-backend.onrender.com/api";
+}
+
+console.log(`🔗 App Mode: ${import.meta.env.MODE}`);
 console.log("🔗 Connecting to Backend at:", API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true, // Critical for CORS cookies/sessions if you use them
   headers: {
     "Content-Type": "application/json",
   },
