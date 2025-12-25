@@ -267,7 +267,7 @@ exports.inviteEmployee = async (req, res) => {
   try {
     const { employeeId } = req.body;
 
-    // Ensure req.user exists (Security Check)
+    // Security Check
     if (!req.user || !req.user.companyId) {
       return res.status(401).json({ message: "Unauthorized action." });
     }
@@ -297,40 +297,62 @@ exports.inviteEmployee = async (req, res) => {
       .update(inviteToken)
       .digest("hex");
 
-    await User.create({
+    // ✅ SENIOR DEV FIX: Define the new user object but don't assume success yet
+    const newUser = await User.create({
       name: `${employee.firstName} ${employee.lastName}`,
       email: employee.officialEmail,
-      password: crypto.randomBytes(10).toString("hex"), // Dummy password
+      password: crypto.randomBytes(20).toString("hex"), // Strong dummy password
       role: "EMPLOYEE",
       companyId: hrTenantId,
       passwordResetToken: hashedToken,
       passwordResetExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 Hours valid
     });
 
-    // 4. Send Email
-    // ✅ FIX: Use Production URL here too
-    const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    const cleanBaseUrl = frontendBaseUrl.replace(/\/$/, "");
-    const inviteURL = `${cleanBaseUrl}/#/reset-password/${inviteToken}`;
+    // 4. Send Email (With Rollback Protection)
+    try {
+      // Use the Production URL (Fixed Logic)
+      const frontendBaseUrl =
+        process.env.FRONTEND_URL || "http://localhost:3000";
+      // Ensure no trailing slash issues
+      const cleanBaseUrl = frontendBaseUrl.replace(/\/$/, "");
+      const inviteURL = `${cleanBaseUrl}/#/reset-password/${inviteToken}`;
 
-    const message = `
-      <h3>You have been invited to join BharatForce!</h3>
-      <p>Hello ${employee.firstName},</p>
-      <p>Your HR has created a profile for you. Please click the link below to set your password and activate your account.</p>
-      <a href="${inviteURL}" style="background:#4F46E5;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Accept Invitation</a>
-    `;
+      const message = `
+        <h3>You have been invited to join BharatForce!</h3>
+        <p>Hello ${employee.firstName},</p>
+        <p>Your HR has created a profile for you. Please click the link below to set your password and activate your account.</p>
+        <div style="margin: 30px 0;">
+            <a href="${inviteURL}" style="background:#4F46E5;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Accept Invitation</a>
+        </div>
+        <p style="font-size:12px;color:#666;">Link expires in 24 hours.</p>
+      `;
 
-    await sendEmail({
-      email: employee.officialEmail,
-      subject: "Invitation to Join BharatForce",
-      message,
-    });
+      await sendEmail({
+        email: employee.officialEmail,
+        subject: "Invitation to Join BharatForce",
+        message,
+      });
 
-    res
-      .status(200)
-      .json({ success: true, message: "Invitation sent to employee!" });
+      res
+        .status(200)
+        .json({ success: true, message: "Invitation sent to employee!" });
+    } catch (emailError) {
+      // ❌ CRITICAL ROLLBACK:
+      // If email fails, DELETE the user we just created.
+      // This allows the HR to try again later without getting "User already exists".
+      await User.findByIdAndDelete(newUser._id);
+
+      console.error(
+        "❌ Email failed, rolled back user creation:",
+        emailError.message
+      );
+      throw new Error("Email sending failed. Please try again.");
+    }
   } catch (error) {
     console.error("Invite Error:", error);
-    res.status(500).json({ message: error.message });
+    // Send a cleaner error message to frontend
+    res
+      .status(500)
+      .json({ message: error.message || "Server Error during invitation" });
   }
 };
