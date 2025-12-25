@@ -186,7 +186,7 @@ exports.createCompany = async (req, res) => {
           <h3>Welcome aboard!</h3>
           <p>The company <b>${name}</b> has been successfully registered.</p>
           <p><b>Login ID:</b> ${email}<br><b>Temporary Password:</b> ${tempPassword}</p>
-          <a href="http://localhost:3000/#/login" style="background:#4F46E5;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Login Now</a>
+          <a href="https://bharatforce-9gsv.onrender.com/#/login" style="background:#4F46E5;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Login Now</a>
         `,
       });
     } catch (err) {
