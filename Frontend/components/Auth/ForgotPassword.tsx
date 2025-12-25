@@ -5,9 +5,11 @@ import {
   ArrowLeft,
   Loader2,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+// ✅ CRITICAL CHANGE: Import your configured API service
+import api from "../../services/api";
 
 export const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -19,23 +21,29 @@ export const ForgotPassword: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
+    setMessage(""); // Clear previous messages
 
     try {
-      // ✅ Use your backend IP (127.0.0.1) to avoid network issues
-      await axios.post("http://127.0.0.1:5000/api/auth/forgot-password", {
-        email,
-      });
+      // Replaced 'axios.post("http://127.0.0.1...")' with 'api.post("/auth/forgot-password")'
+      // This uses the BaseURL defined in your services/api.ts file
+      await api.post("/auth/forgot-password", { email });
+
       setStatus("success");
       setMessage("Password reset link sent to your email!");
     } catch (error: any) {
       setStatus("error");
-      setMessage(error.response?.data?.message || "Something went wrong.");
+      // Handle the error message safely, falling back to a generic message if server response is missing
+      const errorMsg =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+      setMessage(errorMsg);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-slate-100">
+        {/* HEADER SECTION */}
         {status !== "success" && (
           <div className="text-center">
             <h2 className="mt-6 text-3xl font-extrabold text-slate-900">
@@ -47,8 +55,9 @@ export const ForgotPassword: React.FC = () => {
           </div>
         )}
 
+        {/* SUCCESS STATE */}
         {status === "success" ? (
-          <div className="text-center space-y-6">
+          <div className="text-center space-y-6 animate-fade-in">
             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
               <CheckCircle2 className="h-8 w-8 text-green-600" />
             </div>
@@ -69,6 +78,7 @@ export const ForgotPassword: React.FC = () => {
             </Link>
           </div>
         ) : (
+          /* FORM STATE */
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -92,9 +102,11 @@ export const ForgotPassword: React.FC = () => {
               </div>
             </div>
 
+            {/* ERROR MESSAGE DISPLAY */}
             {status === "error" && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="flex">
+                  <AlertCircle className="h-5 w-5 text-red-400" />
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-red-800">Error</h3>
                     <div className="text-sm text-red-700 mt-1">{message}</div>
