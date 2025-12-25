@@ -32,8 +32,9 @@ app.use(
       "https://bharatforce-9gsv.onrender.com", // YOUR LIVE PRODUCTION FRONTEND
       process.env.FRONTEND_URL, // Fallback for Env Var
     ].filter(Boolean), // Removes any undefined/null values
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true, // Allow cookies/headers
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 

@@ -8,7 +8,7 @@ const sendEmail = async (options) => {
 
   try {
     const data = await resend.emails.send({
-      // ⚠️ IMPORTANT: Until you verify your domain, you MUST use this email:
+      // IMPORTANT: Until you verify your domain, you MUST use this email:
       from: "BharatForce Security <onboarding@resend.dev>",
       to: options.email,
       subject: options.subject,
