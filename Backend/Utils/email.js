@@ -4,22 +4,26 @@ const sendEmail = async (options) => {
   console.log(`📨 Initiating email send to: ${options.email}`);
 
   // 1. Create Transporter
-  // ✅ FIX: Use Port 587 (STARTTLS) instead of 465.
-  // This is the standard for cloud servers like Render/AWS/Heroku.
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // Must be FALSE for port 587. (It upgrades to secure later)
+    secure: false, // Use STARTTLS (standard for port 587)
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD, // Must be App Password
     },
-    // Reliability Settings
-    tls: {
-      ciphers: "SSLv3",
-      rejectUnauthorized: false, // Helps avoid certificate handshake failures in some cloud envs
-    },
+    // ✅ CRITICAL FIX: Network & Reliability Settings
+    // 1. Force IPv4 (Fixes the ETIMEDOUT on Render/Docker)
+    family: 4,
+    // 2. Timeout settings to fail fast if blocked
     connectionTimeout: 10000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
+    // 3. Relax TLS for cloud environments
+    tls: {
+      rejectUnauthorized: false,
+      ciphers: "SSLv3",
+    },
   });
 
   // 2. Define Email Options
@@ -43,12 +47,16 @@ const sendEmail = async (options) => {
 
   // 3. Send and verify
   try {
+    // Verify connection configuration before sending (Optional debug step)
+    await transporter.verify();
+    console.log("✅ SMTP Server is ready to take our messages");
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Email sent successfully: ${info.messageId}`);
   } catch (error) {
     console.error("❌ Email Service Failed:", error);
-    // Throw error so the Controller knows to send a 500 response
-    throw new Error(error.message);
+    // Throw error so the Controller handles the 500 response
+    throw new Error(`Email failed: ${error.message}`);
   }
 };
 
