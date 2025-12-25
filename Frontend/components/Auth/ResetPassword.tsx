@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Lock, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
-// ✅ FIX 1: Import your smart API service, NOT raw axios
+import { Lock, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+
+// ✅ Import strictly from the default export we just created
 import api from "../../services/api";
 
 export const ResetPassword: React.FC = () => {
-  // ✅ FIX 2: Handle HashRouter token extraction safely
+  // 1. Get Token from Router
   const { token: paramToken } = useParams<{ token: string }>();
   const navigate = useNavigate();
 
@@ -18,6 +19,8 @@ export const ResetPassword: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
     if (password !== confirmPassword) {
       setStatus("error");
       setMessage("Passwords do not match");
@@ -29,29 +32,28 @@ export const ResetPassword: React.FC = () => {
       return;
     }
 
-    // ✅ FIX 3: Get token safely (Fallback for HashRouter issues)
-    // If useParams is empty, try grabbing the last part of the URL manually
+    // 2. Token Fallback Strategy (For HashRouter safety)
     const urlToken = window.location.hash.split("/").pop();
     const finalToken = paramToken || urlToken;
 
     if (!finalToken) {
       setStatus("error");
-      setMessage("Invalid URL: Missing Reset Token");
+      setMessage("Error: Reset Token missing from URL.");
       return;
     }
 
     setStatus("loading");
+
     try {
-      // ✅ FIX 4: Use 'api.patch' instead of 'axios.patch'
-      // This automatically adds the correct Base URL (Production vs Local)
+      // 3. Network Request (Production Ready)
+      // We use 'api.patch' so it auto-selects the correct Production Backend URL
       await api.patch(`/auth/reset-password/${finalToken}`, { password });
 
       setStatus("success");
       setTimeout(() => navigate("/login"), 3000);
     } catch (error: any) {
-      console.error("Reset Error:", error);
+      console.error("❌ Reset Error:", error);
       setStatus("error");
-      // Handle standard axios error response structure
       setMessage(
         error.response?.data?.message || "Token is invalid or has expired."
       );
@@ -59,25 +61,25 @@ export const ResetPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-slate-100">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-slate-100">
         <div className="text-center">
-          <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+          <h2 className="text-3xl font-extrabold text-slate-900">
             Set new password
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Please enter a strong password to secure your account.
+            Enter a strong password.
           </p>
         </div>
 
         {status === "success" ? (
-          <div className="text-center bg-green-50 p-6 rounded-lg border border-green-100 animate-fade-in">
+          <div className="text-center bg-green-50 p-6 rounded-lg border border-green-100 mt-6">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-green-800">
               Password Updated!
             </h3>
             <p className="text-green-600 text-sm mt-1">
-              Redirecting to login in 3 seconds...
+              Redirecting to login...
             </p>
           </div>
         ) : (
@@ -96,12 +98,11 @@ export const ResetPassword: React.FC = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:ring-indigo-500"
                     placeholder="••••••••"
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-slate-700">
                   Confirm Password
@@ -115,7 +116,7 @@ export const ResetPassword: React.FC = () => {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:ring-indigo-500"
                     placeholder="••••••••"
                   />
                 </div>
@@ -132,7 +133,7 @@ export const ResetPassword: React.FC = () => {
             <button
               type="submit"
               disabled={status === "loading"}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-all"
+              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70"
             >
               {status === "loading" ? (
                 <Loader2 className="animate-spin h-5 w-5" />
